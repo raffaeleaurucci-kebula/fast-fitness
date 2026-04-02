@@ -11,8 +11,8 @@ class User(BaseModel):
     street_address: str
     street_number: int
     city: str
-    capital: str
-    telephone: str
+    zip_code: str
+    phone_number: str
     username: str
     email: str
     password: str
