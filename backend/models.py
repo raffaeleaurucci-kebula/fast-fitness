@@ -23,6 +23,7 @@ class UserCreateORM(BaseModel):
     username: str
     email: EmailStr
     password: str  # hashed in backend
+    new_password: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -49,20 +50,32 @@ class UserCreateORM(BaseModel):
             raise ValueError("Username must be between 3 and 50 characters.")
         return v
 
-    @field_validator("password")
+    @model_validator(mode='before')
     @classmethod
-    def password_strength(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters.")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Password must contain at least one uppercase letter.")
-        if not re.search(r"[a-z]", v):
-            raise ValueError("Password must contain at least one lowercase letter.")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Password must contain at least one number.")
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
-            raise ValueError("Password must contain at least one special character.")
-        return v
+    def password_strength(cls, values):
+        password = values.get("password")
+        new_password = values.get("new_password")
+
+        def check_password(v):
+            if len(v) < 8:
+                raise ValueError("Password must be at least 8 characters.")
+            if not re.search(r"[A-Z]", v):
+                raise ValueError("Password must contain at least one uppercase letter.")
+            if not re.search(r"[a-z]", v):
+                raise ValueError("Password must contain at least one lowercase letter.")
+            if not re.search(r"[0-9]", v):
+                raise ValueError("Password must contain at least one number.")
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
+                raise ValueError("Password must contain at least one special character.")
+            return v
+
+        if password:
+            check_password(password)
+
+        if new_password:
+            check_password(new_password)
+
+        return values
 
     @field_validator("location_of_birth", "city")
     @classmethod
@@ -360,7 +373,7 @@ class ReservationCourseCreateORM(BaseModel):
             raise ValueError("Date must not be in the past.")
         return v
 
-    @model_validator(mode="after")  # "after" → lavora sull'istanza già costruita
+    @model_validator(mode="after")
     def check_hours(self):
         now = datetime.datetime.now().time()
         if self.date == datetime.date.today() and self.from_hour < now:

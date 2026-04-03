@@ -44,7 +44,7 @@ def create_user(user_in: UserCreateORM, db: Session = Depends(get_db)):
 
     # 4. Create ORM object — model_dump() converts the Pydantic model to a dict
     db_user = User(
-        **user_in.model_dump(exclude={"password"}),
+        **user_in.model_dump(exclude={"password", "new_password"}),
         password=hashed_pw,
     )
     db.add(db_user)
@@ -84,4 +84,53 @@ def login_user(user_in: UserInORM, db: Session = Depends(get_db)):
     if not pwd_context.verify(user_in.password, db_user.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
+    return db_user
+
+@router.put("/{user_id}", response_model=UserOutORM, status_code=status.HTTP_200_OK)
+def update_user(user_id: int, user_in: UserCreateORM, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    db_user.name = user_in.name
+    db_user.surname = user_in.surname
+    db_user.date_of_birth = user_in.date_of_birth
+    db_user.location_of_birth = user_in.location_of_birth
+    db_user.country = user_in.country
+    db_user.street_address = user_in.street_address
+    db_user.street_number = user_in.street_number
+    db_user.city = user_in.city
+    db_user.zip_code = user_in.zip_code
+    db_user.phone_number = user_in.phone_number
+
+    if user_in.username != db_user.username:
+        if db.query(User).filter(User.username == user_in.username).first():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Username already taken.",
+            )
+    db_user.username = user_in.username
+
+    if user_in.email != db_user.email:
+        if db.query(User).filter(User.email == user_in.email).first():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered.",
+            )
+    db_user.email = user_in.email
+
+    if not pwd_context.verify(user_in.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password.")
+
+    if user_in.new_password:
+        if pwd_context.verify(user_in.new_password, db_user.password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is identically to previous password.",
+            )
+        hashed_pw = pwd_context.hash(user_in.new_password)
+        db_user.password = hashed_pw
+
+    db.commit()
+    db.refresh(db_user)
     return db_user

@@ -42,7 +42,7 @@ class CreditCard(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    number = Column(String(16), nullable=False, unique=True)
+    number = Column(String(16), nullable=False)
     expiry_date = Column(String(7), nullable=False)
     brand = Column(String(50), nullable=False)
 
@@ -50,6 +50,8 @@ class CreditCard(Base):
     user = relationship("User", back_populates="credit_cards")
     subscriptions = relationship("SubscriptionUserCard", back_populates="card")
     courses = relationship("CourseUserCard", back_populates="card")
+
+    __table_args__ = (UniqueConstraint("user_id", "expiry_date", name="uq_expiry_date_user_id"),)
 
 
 
