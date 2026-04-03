@@ -152,7 +152,7 @@ class UserInORM(BaseModel):
 class CreditCardCreateORM(BaseModel):
     user_id: int
     number: str
-    expiry_date: str
+    expiry_date: datetime.date
     brand: str
 
     model_config = {"from_attributes": True}
@@ -164,33 +164,32 @@ class CreditCardCreateORM(BaseModel):
             raise ValueError("Number of credit card not valid.")
         return v
 
+
+    @field_validator("expiry_date", mode="before")
+    @classmethod
+    def parse_expiry(cls, v):
+        if isinstance(v, str):
+            try:
+                month, year = map(int, v.split("-"))
+            except Exception:
+                raise ValueError("Expiry date must be in format MM-YYYY")
+
+            if month < 1 or month > 12:
+                raise ValueError("Expiry month must be between 1 and 12.")
+
+            import calendar
+            last_day = calendar.monthrange(year, month)[1]
+            return datetime.date(year, month, last_day)
+
+        return v
+
+
     @field_validator("expiry_date")
     @classmethod
-    def check_expire(cls, v):
-        expiry_date = str.split(v, "-")
-
-        expiry_month = expiry_date[0]
-        expiry_year = expiry_date[1]
-
-        if expiry_month.isdigit() and expiry_year.isdigit():
-            expiry_month = int(expiry_month)
-            expiry_year = int(expiry_year)
-        else:
-            raise ValueError("Expiry month and Expiry year must be digits.")
-
-        if expiry_month > 12 or expiry_month < 1:
-            raise ValueError("Expiry month must be between 1 and 12.")
-
-        if expiry_year < datetime.datetime.now().year:
-            raise ValueError("Expiry year must be greater or equal than current year.")
-
-        import calendar
-        last_day = calendar.monthrange(expiry_year, expiry_month)[1]
-        expiry_date = datetime.date(expiry_year, expiry_month, last_day)
-
-        if expiry_date < datetime.datetime.now():
+    def check_expire(cls, v: datetime.date):
+        if v < datetime.date.today():
             raise ValueError("Credit card is expired.")
-
+        return v
 
     @field_validator("brand")
     @classmethod
@@ -200,12 +199,11 @@ class CreditCardCreateORM(BaseModel):
         return v
 
 
-# No token on response
 class CreditCardOutORM(BaseModel):
     id: int
     user_id: int
     number: str
-    expiry_date: str
+    expiry_date: datetime.date
     brand: str
 
     model_config = {"from_attributes": True}
