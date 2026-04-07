@@ -9,6 +9,10 @@ import re
 # -------------------------------------------------------------------------
 # USER
 # -------------------------------------------------------------------------
+class UserRole(str, Enum):
+    USER = "USER"
+    ADMIN = "ADMIN"
+
 class UserCreateORM(BaseModel):
     name: str
     surname: str
@@ -22,7 +26,8 @@ class UserCreateORM(BaseModel):
     phone_number: str
     username: str
     email: EmailStr
-    password: str  # hashed in backend
+    password: str
+    role: UserRole = UserRole.USER
     new_password: Optional[str] = None
 
     model_config = {"from_attributes": True}
@@ -71,7 +76,6 @@ class UserCreateORM(BaseModel):
 
         if password:
             check_password(password)
-
         if new_password:
             check_password(new_password)
 
@@ -120,7 +124,6 @@ class UserCreateORM(BaseModel):
         return v
 
 
-# No password on response
 class UserOutORM(BaseModel):
     id: int
     name: str
@@ -135,6 +138,7 @@ class UserOutORM(BaseModel):
     phone_number: str
     username: str
     email: EmailStr
+    role: UserRole
 
     model_config = {"from_attributes": True}
 
@@ -144,6 +148,11 @@ class UserInORM(BaseModel):
     password: str
 
     model_config = {"from_attributes": True}
+
+
+class CurrentUser(BaseModel):
+    id: int
+    role: UserRole
 
 
 # -------------------------------------------------------------------------
@@ -164,7 +173,6 @@ class CreditCardCreateORM(BaseModel):
             raise ValueError("Number of credit card not valid.")
         return v
 
-
     @field_validator("expiry_date", mode="before")
     @classmethod
     def parse_expiry(cls, v):
@@ -182,7 +190,6 @@ class CreditCardCreateORM(BaseModel):
             return datetime.date(year, month, last_day)
 
         return v
-
 
     @field_validator("expiry_date")
     @classmethod
@@ -213,6 +220,7 @@ class CreditCardOutORM(BaseModel):
 # SUBSCRIPTIONS
 # -------------------------------------------------------------------------
 class SubscriptionCreateORM(BaseModel):
+    title: str
     cost: float
     duration_month: int
     weekly_accesses: int
@@ -237,6 +245,7 @@ class SubscriptionCreateORM(BaseModel):
 
 class SubscriptionOutORM(BaseModel):
     id: int
+    title: str
     cost: float
     duration_month: int
     weekly_accesses: int
@@ -346,6 +355,7 @@ class CourseUserCardCreateORM(BaseModel):
 
 class CourseUserCardOutORM(BaseModel):
     id: int
+    user_id: int
     card_id: int
     course_id: int
     init_date: datetime.date
@@ -428,6 +438,7 @@ class ExerciseCreateORM(BaseModel):
 
 class ExerciseOutORM(BaseModel):
     id: int
+    name: str  # FIX: was missing in original
     muscle_group: str
     description: Optional[str] = None
 
@@ -447,21 +458,21 @@ class TrainingCardExerciseCreateORM(BaseModel):
     @classmethod
     def position_valid(cls, v):
         if not 1 <= v <= 12:
-            raise ValueError("Position must be between 1 and 12 characters.")
+            raise ValueError("Position must be between 1 and 12.")
         return v
 
     @field_validator("sets")
     @classmethod
     def sets_valid(cls, v):
         if not 1 <= v <= 50:
-            raise ValueError("Sets must be between 1 and 50 characters.")
+            raise ValueError("Sets must be between 1 and 50.")
         return v
 
     @field_validator("reps")
     @classmethod
     def reps_valid(cls, v):
         if not 1 <= v <= 30:
-            raise ValueError("Reps must be between 1 and 30 characters.")
+            raise ValueError("Reps must be between 1 and 30.")
         return v
 
     model_config = {"from_attributes": True}

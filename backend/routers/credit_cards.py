@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from database import get_db
-from database_models import CreditCard
-from models import CreditCardOutORM, CreditCardCreateORM
+from models import CreditCardCreateORM, CreditCardOutORM, CurrentUser
+from routers.auth import get_current_user
+from services import credit_cards as card_service
+from fastapi import HTTPException
 
 router = APIRouter(
     prefix="/credit_cards",
@@ -12,59 +15,58 @@ router = APIRouter(
 
 
 @router.post("/", response_model=CreditCardOutORM, status_code=status.HTTP_201_CREATED)
-def create_credit_card(card_in: CreditCardCreateORM, db: Session = Depends(get_db)):
-
-    if db.query(CreditCard).filter(CreditCard.number == card_in.number and CreditCard.user_id == card_in.user_id).first():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Credit Card already taken",
-        )
-
-    db_card = CreditCard(**card_in.model_dump(),)
-    db.add(db_card)
-    db.commit()
-    db.refresh(db_card)  # reloads the object with the DB-assigned ID
-
-    return db_card
+def create_credit_card(
+    card_in: CreditCardCreateORM,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    # Users can only create cards for themselves
+    if card_in.user_id != current_user.id:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
+    return card_service.create_credit_card(db, card_in)
 
 
 @router.get("/{card_id}", response_model=CreditCardOutORM)
-def get_credit_card(card_id: int, db: Session = Depends(get_db)):
-
-    db_card = db.get(CreditCard, card_id)
-    if not db_card:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Card id not found",
-        )
+def get_credit_card(
+    card_id: int,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    db_card = card_service.get_card_or_404(db, card_id)
+    card_service.assert_card_belongs_to_user(db_card, current_user.id)
     return db_card
 
 
 @router.get("/list/{user_id}", response_model=list[CreditCardOutORM])
-def list_credit_cards_by_user(user_id: int, db: Session = Depends(get_db)):
-    return db.query(CreditCard).filter(CreditCard.user_id == user_id).all()
+def list_credit_cards_by_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if user_id != current_user.id:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
+    return card_service.list_cards_by_user(db, user_id)
 
 
 @router.put("/{card_id}", response_model=CreditCardOutORM, status_code=status.HTTP_200_OK)
-def update_credit_card(card_id: int, card_in: CreditCardCreateORM, db: Session = Depends(get_db)):
-    db_card = db.query(CreditCard).filter(CreditCard.id == card_id and CreditCard.user_id == card_in.user_id).first()
-    if not db_card:
-        raise HTTPException(status_code=404, detail="Credit card not found.")
-
-    db_card.number = card_in.number
-    db_card.expiry_date = card_in.expiry_date
-    db_card.brand = card_in.brand
-
-    db.commit()
-    db.refresh(db_card)
-    return db_card
+def update_credit_card(
+    card_id: int,
+    card_in: CreditCardCreateORM,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if card_in.user_id != current_user.id:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
+    return card_service.update_credit_card(db, card_id, card_in)
 
 
-@router.delete("/{user_id}/{card_id}", response_model=CreditCardOutORM, status_code=status.HTTP_200_OK)
-def delete_credit_card(user_id: int, card_id: int, db: Session = Depends(get_db)):
-    db_card = db.query(CreditCard).filter(CreditCard.id == card_id and CreditCard.user_id == user_id).first()
-    if not db_card:
-        raise HTTPException(status_code=404, detail="Credit card not found.")
-    db.delete(db_card)
-    db.commit()
-    return db_card
+@router.delete("/{card_id}", response_model=CreditCardOutORM, status_code=status.HTTP_200_OK)
+def delete_credit_card(
+    user_id: int,
+    card_id: int,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if user_id != current_user.id:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
+    return card_service.delete_credit_card(db, card_id, user_id)
