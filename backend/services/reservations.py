@@ -1,3 +1,6 @@
+import datetime
+
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -59,3 +62,16 @@ def delete_reservation_by_user(db: Session, reservation_id: int, user_id: int) -
     db.delete(db_res)
     db.commit()
     return db_res
+
+
+def count_participants_by_course(db: Session, course_id: int, start_date: datetime.date = None,
+                                 end_date: datetime.date = None) -> int:
+    query = db.query(func.count(ReservationCourse.id)).filter(ReservationCourse.course_id == course_id)
+
+    if start_date:
+        query = query.filter(ReservationCourse.date >= start_date)
+    if end_date:
+        query = query.filter(ReservationCourse.date <= end_date)
+
+    count = query.scalar()
+    return int(count or 0)

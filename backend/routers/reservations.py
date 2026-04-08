@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -38,6 +40,22 @@ def delete_reservation_admin(
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
     return reservation_service.delete_reservation(db, reservation_id)
+
+
+@router.get("/{course_id}/participants")
+def get_course_participant_count(
+    course_id: int,
+    start_date: datetime.date,
+    end_date: datetime.date,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
+    return {
+        "course_id": course_id,
+        "participants": count_participants_by_course(db, course_id, start_date, end_date)
+    }
 
 
 # -------------------------------------------------------------------------
