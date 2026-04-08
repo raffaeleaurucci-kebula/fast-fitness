@@ -497,7 +497,6 @@ class TrainingCardCreateORM(BaseModel):
     expiry_date: datetime.date
     description: Optional[str] = None
     note: Optional[str] = None
-    exercises: List[TrainingCardExerciseOutORM] = []
 
     model_config = {"from_attributes": True}
 
