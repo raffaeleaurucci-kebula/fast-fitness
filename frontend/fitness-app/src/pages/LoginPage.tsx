@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import { useLogin } from "../hooks/useLogin";
+import { useLogin } from "../hooks/useLogin.tsx";
 import { LoginForm } from "../components/LoginForm";
 
 export function LoginPage() {
