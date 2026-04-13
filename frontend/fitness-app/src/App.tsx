@@ -4,12 +4,13 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import Navbar from "./components/Navbar.tsx";
 import {ProfilePage} from "./pages/ProfilePage.tsx";
+import {PublicHome} from "./pages/PublicHome.tsx";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
   return (
     <Routes>
-      {/* "/" mostra contenuto diverso in base al login, mai redirect */}
+      {/* "/" mostra contenuto diverso in base al login */}
       <Route
         path="/"
         element={isAuthenticated ? <Dashboard /> : <PublicHome />}
@@ -30,15 +31,6 @@ function AppRoutes() {
         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
       />
     </Routes>
-  );
-}
-
-function PublicHome() {
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Benvenuto su FastFitness</h2>
-      <p>Effettua il login per accedere ai tuoi contenuti.</p>
-    </div>
   );
 }
 

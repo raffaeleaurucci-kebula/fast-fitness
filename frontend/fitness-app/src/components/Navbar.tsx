@@ -1,12 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { useState, useRef, useEffect } from "react";
+import {useUser} from "../hooks/useUser.tsx";
+import type {UserOut} from "../types/auth.ts";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const { getUserById } = useUser();
+
+  const [userData, setUserData] = useState<UserOut | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      getUserById(user.id).then(setUserData);
+    }
+  }, [user]);
 
   const navItems = [
     { path: "/", label: "Home", roles: ["USER", "ADMIN"] },
@@ -146,7 +158,7 @@ const Navbar = () => {
                     }}
                   >
                     <div style={{ fontWeight: "bold", color: "#333", fontSize: "14px" }}>
-                      {user?.id || "Utente"}
+                      {userData?.username|| "Utente"}
                     </div>
                     <div>{user?.role}</div>
                   </div>
