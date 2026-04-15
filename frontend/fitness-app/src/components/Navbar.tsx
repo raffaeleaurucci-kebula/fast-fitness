@@ -46,7 +46,7 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="navbar navbar-expand-lg background px-3">
+    <nav className="navbar sticky-top navbar-expand-lg background px-3 shadow-sm" style={{ backgroundColor: "white" }}>
       <div
         className="container-fluid d-flex align-items-center position-relative"
         style={{ gap: 0 }}

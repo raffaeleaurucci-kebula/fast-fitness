@@ -13,7 +13,7 @@ function AppRoutes() {
       {/* "/" mostra contenuto diverso in base al login */}
       <Route
         path="/"
-        element={isAuthenticated ? <Dashboard /> : <PublicHome />}
+        element={<PublicHome />}
       />
 
       {/* se già loggato, /login e /register rimandano alla dashboard */}
@@ -31,17 +31,6 @@ function AppRoutes() {
         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
       />
     </Routes>
-  );
-}
-
-function Dashboard() {
-  const { user, logout } = useAuth();
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Benvenuto, {user?.role || "utente"}!</h2>
-      <p>Ruolo: {user?.role}</p>
-      <button onClick={logout}>Logout</button>
-    </div>
   );
 }
 
