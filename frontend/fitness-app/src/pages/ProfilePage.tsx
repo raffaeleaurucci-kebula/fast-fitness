@@ -23,6 +23,7 @@ export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UpdateUserData | null>(null);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [localError, setLocalError] = useState<string | null>(null);
 
   // password toggle
   const [showPasswords, setShowPasswords] = useState(false);
@@ -75,12 +76,12 @@ export function ProfilePage() {
   const handleSave = async () => {
     if (!user?.id || !formData) return;
 
-    if (
-      formData.password &&
-      formData.password !== confirmPassword
-    ) {
-      return;
-    }
+    setLocalError(null); // reset ogni submit
+
+    // if (formData.password && formData.password !== confirmPassword) {
+    //   setLocalError("Le password non coincidono.");
+    //   return;
+    // }
 
     const res = await updateUserById(user.id, formData);
 
@@ -90,16 +91,19 @@ export function ProfilePage() {
       setIsEditing(false);
       setConfirmPassword("");
       setShowPasswords(false);
+      setLocalError(null);
     }
+    else setLocalError(errorUpdate)
   };
 
   const handleCancel = () => {
     setIsEditing(false);
     setConfirmPassword("");
     setShowPasswords(false);
+    setLocalError(null);
 
     if (!userData) return;
-    setFormData(buildFormData(userData));
+      setFormData(buildFormData(userData));
   };
 
   return (
@@ -140,15 +144,6 @@ export function ProfilePage() {
                 {userData?.username || "Utente"}
               </h4>
             </div>
-
-            {/* STATUS */}
-            {loadingUser && <p>Loading...</p>}
-            {errorUser && (
-              <p className="text-danger">{errorUser}</p>
-            )}
-            {errorUpdate && (
-              <p className="text-danger">{errorUpdate}</p>
-            )}
 
             {/* USER DATA */}
             <div className="mb-4">
@@ -292,6 +287,26 @@ export function ProfilePage() {
 
               </div>
             </div>
+
+            {/* STATUS */}
+            {loadingUser && (
+              <div className="alert alert-info py-2 d-flex align-items-center gap-2">
+                <div className="spinner-border spinner-border-sm" role="status" />
+                <span>Loading...</span>
+              </div>
+            )}
+
+            {errorUser && (
+              <div className="alert alert-danger py-2">
+                {errorUser}
+              </div>
+            )}
+
+            {isEditing && localError && (
+              <div className="alert alert-danger py-2">
+                {localError}
+              </div>
+)}
 
             {/* BUTTONS */}
             <div className="d-flex justify-content-between">

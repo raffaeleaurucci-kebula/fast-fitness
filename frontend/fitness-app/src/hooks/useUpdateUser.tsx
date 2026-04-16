@@ -14,6 +14,7 @@ export function useUpdateUser(): UseUpdateUserReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  //TODO: WHY WHEN NEW PASSWORD EQUAL TO OLD PASSWORD THE ERROR DOESN'T VISUALIZED???
   const updateUserById = async (id: number, user_in: UpdateUserData) => {
     setLoading(true);
     setError(null);
@@ -31,17 +32,26 @@ export function useUpdateUser(): UseUpdateUserReturn {
       });
 
       if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({}));
 
-          const message = data.detail ?? "Update failed";
-          setError(message);
+        let message = "Update failed";
 
-          if (message.toLowerCase().includes("token")) {
-            localStorage.removeItem(TOKEN_KEY);
-            window.location.href = "/login";
-          }
+        if (Array.isArray(data.detail)) {
+          message = data.detail
+            .map((err: { msg: string; }) => err.msg.replace(/^Value error,\s*/i, ""))
+            .join(", ");
+        } else {
+          message = data.detail || data.message || message;
+        }
 
-          return null;
+        setError(message);
+
+        if (message.toLowerCase().includes("token")) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = "/login";
+        }
+
+        return null;
       }
 
       return await res.json();
