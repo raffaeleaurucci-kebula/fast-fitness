@@ -7,6 +7,7 @@ import { RegisterStep2 } from "../components/RegisterStep2.tsx";
 import { RegisterStep3 } from "../components/RegisterStep3";
 import type { RegisterData } from "../types/auth";
 import React from "react";
+import Footer from "../components/Footer.tsx";
 
 const STEPS = ["Dati personali", "Indirizzo", "Credenziali"];
 
@@ -43,8 +44,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
-      <div className="card shadow-sm border-0 p-4" style={{ width: "100%", maxWidth: "460px" }}>
+
+    <div className="min-vh-100 d-flex flex-column">
+      <div className="flex-grow-1 d-flex align-items-center justify-content-center bg-light py-4">
+      <div className="card shadow-sm border-1 p-4" style={{ width: "100%", maxWidth: "460px" }}>
 
         {/* Header */}
         <div className="text-center mb-4">
@@ -129,6 +132,8 @@ export function RegisterPage() {
           </a>
         </p>
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 }

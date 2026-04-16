@@ -59,10 +59,6 @@ def update_user(db: Session, user_id: int, user_in: UserCreateORM, current_user_
     if user_in.email != db_user.email:
         assert_email_unique(db, user_in.email, exclude_user_id=user_id)
 
-    # Verify current password before applying any change
-    if not pwd_context.verify(user_in.password, db_user.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password.")
-
     # Update scalar fields
     db_user.name = user_in.name
     db_user.surname = user_in.surname

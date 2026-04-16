@@ -45,3 +45,20 @@ export interface UserOut {
     email: string;
     role: string;
 }
+
+export interface UpdateUserData {
+  name: string;
+  surname: string;
+  date_of_birth: string;       // YYYY-MM-DD
+  location_of_birth: string;
+  country: string;
+  street_address: string;
+  street_number: number;
+  city: string;
+  zip_code: string;
+  phone_number: string;
+  username: string;
+  email: string;
+  password: string;
+  old_password: string;
+}
