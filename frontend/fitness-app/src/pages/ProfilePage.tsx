@@ -78,10 +78,10 @@ export function ProfilePage() {
 
     setLocalError(null); // reset ogni submit
 
-    // if (formData.password && formData.password !== confirmPassword) {
-    //   setLocalError("Le password non coincidono.");
-    //   return;
-    // }
+    if (formData.password && formData.password !== confirmPassword) {
+      setLocalError("Le password non coincidono.");
+      return;
+    }
 
     const res = await updateUserById(user.id, formData);
 
