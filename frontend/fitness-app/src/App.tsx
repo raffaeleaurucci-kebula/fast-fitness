@@ -5,12 +5,13 @@ import { RegisterPage } from "./pages/RegisterPage";
 import Navbar from "./components/Navbar.tsx";
 import {ProfilePage} from "./pages/ProfilePage.tsx";
 import {PublicHome} from "./pages/PublicHome.tsx";
+import SubscriptionsPage from "./pages/SubscriptionsPage.tsx";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
   return (
     <Routes>
-      {/* "/" mostra contenuto diverso in base al login */}
+
       <Route
         path="/"
         element={<PublicHome />}
@@ -30,6 +31,13 @@ function AppRoutes() {
         path="/profile"
         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
       />
+
+      <Route
+        path="/subscriptions"
+        element={<SubscriptionsPage/>}
+      />
+
+
     </Routes>
   );
 }
