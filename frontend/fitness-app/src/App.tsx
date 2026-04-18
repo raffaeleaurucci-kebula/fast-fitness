@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar.tsx";
 import {ProfilePage} from "./pages/ProfilePage.tsx";
 import {PublicHome} from "./pages/PublicHome.tsx";
 import SubscriptionsPage from "./pages/SubscriptionsPage.tsx";
+import SubscribePage from "./pages/SubscribePage.tsx";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -37,7 +38,15 @@ function AppRoutes() {
         element={<SubscriptionsPage/>}
       />
 
-
+      <Route
+        path="/subscribe/:subscriptionId"
+        element={
+        isAuthenticated
+          ? <SubscribePage />
+          : <Navigate to="/login" />
+        }
+      />
+        
     </Routes>
   );
 }

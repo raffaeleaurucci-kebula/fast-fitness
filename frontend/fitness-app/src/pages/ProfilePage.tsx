@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.tsx";
-import { useUser } from "../hooks/useUser.tsx";
-import { useUpdateUser } from "../hooks/useUpdateUser.tsx";
+import { useUser } from "../hooks/user/useUser.tsx";
+import { useUpdateUser } from "../hooks/user/useUpdateUser.tsx";
 import type { UserOut, UpdateUserData } from "../types/auth.ts";
 import Footer from "../components/Footer.tsx";
 

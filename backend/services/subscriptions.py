@@ -72,7 +72,6 @@ def create_subscription_by_user(
         .join(CreditCard, SubscriptionUserCard.card_id == CreditCard.id)
         .filter(
             CreditCard.user_id == db_card.user_id,
-            SubscriptionUserCard.subscription_id == sub_card_in.subscription_id,
             SubscriptionUserCard.expiry_date >= sub_card_in.init_date,
         )
         .first()
@@ -80,7 +79,7 @@ def create_subscription_by_user(
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="User already has an active subscription for this plan.",
+            detail="Hai già un abbonamento attivo. Attendi la scadenza oppure annulla quello corrente.",
         )
 
     db_sub_card = SubscriptionUserCard(**sub_card_in.model_dump())

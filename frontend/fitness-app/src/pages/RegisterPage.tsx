@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useRegister } from "../hooks/useRegister";
-import { useLogin } from "../hooks/useLogin.tsx";
+import { useRegister } from "../hooks/user/useRegister.tsx";
+import { useLogin } from "../hooks/user/useLogin.tsx";
 import { RegisterStep1 } from "../components/RegisterStep1";
 import { RegisterStep2 } from "../components/RegisterStep2.tsx";
 import { RegisterStep3 } from "../components/RegisterStep3";
