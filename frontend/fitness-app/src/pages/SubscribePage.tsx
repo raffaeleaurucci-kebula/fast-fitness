@@ -113,6 +113,9 @@ export default function SubscribePage() {
       init_date: todayStr(),
       expiry_date: addMonths(new Date(), plan.duration_month),
       automatic_renewal: automaticRenewal,
+      // history data
+      paid_amount: plan.cost,
+      cancelled: false
     });
 
     if (result) {

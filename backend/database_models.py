@@ -72,8 +72,7 @@ class Subscription(Base):
     weekly_accesses = Column(Integer, nullable=False)
     description = Column(String(255))
 
-    purchases = relationship("SubscriptionUserCard", back_populates="subscription",
-                             cascade="all, delete-orphan")
+    purchases = relationship("SubscriptionUserCard", back_populates="subscription",)
 
 
 class SubscriptionUserCard(Base):
@@ -81,11 +80,21 @@ class SubscriptionUserCard(Base):
 
     id = Column(Integer, primary_key=True)
     card_id = Column(Integer, ForeignKey("credit_cards.id"), nullable=False)
-    subscription_id = Column(Integer, ForeignKey("subscriptions.id", ondelete="CASCADE"), nullable=False)
+
+    # se admin elimina abbonamento => resta storico con NULL
+    subscription_id = Column(
+        Integer,
+        ForeignKey("subscriptions.id", ondelete="SET NULL"),
+        nullable=True
+    )
 
     init_date = Column(Date, nullable=False)
     expiry_date = Column(Date, nullable=False)
     automatic_renewal = Column(Boolean, default=False)
+
+    # dato storico
+    paid_amount = Column(Numeric(10, 2), nullable=False)
+    cancelled = Column(Boolean, default=False, nullable=False)
 
     card = relationship("CreditCard", back_populates="subscriptions")
     subscription = relationship("Subscription", back_populates="purchases")

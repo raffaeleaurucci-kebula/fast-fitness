@@ -260,6 +260,8 @@ class SubscriptionUserCardCreateORM(BaseModel):
     init_date: datetime.date
     expiry_date: datetime.date
     automatic_renewal: bool = False
+    paid_amount: float
+    cancelled: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -276,10 +278,12 @@ class SubscriptionUserCardCreateORM(BaseModel):
 class SubscriptionUserCardOutORM(BaseModel):
     id: int
     card_id: int
-    subscription_id: int
+    subscription_id: Optional[int] = None
     init_date: datetime.date
     expiry_date: datetime.date
     automatic_renewal: bool = False
+    paid_amount: float
+    cancelled: bool = False
 
     model_config = {"from_attributes": True}
 

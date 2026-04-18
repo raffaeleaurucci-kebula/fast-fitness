@@ -4,6 +4,8 @@ export interface SubscriptionUserCardIn {
   init_date: string;      // YYYY-MM-DD
   expiry_date: string;    // YYYY-MM-DD
   automatic_renewal: boolean;
+  paid_amount: number;
+  cancelled: boolean;
 }
 
 export interface SubscriptionUserCardOut {
@@ -13,4 +15,6 @@ export interface SubscriptionUserCardOut {
   init_date: string;
   expiry_date: string;
   automatic_renewal: boolean;
+  paid_amount: number;
+  cancelled: boolean;
 }

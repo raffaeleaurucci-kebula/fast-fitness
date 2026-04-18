@@ -46,7 +46,9 @@ def list_subscriptions_by_user(db: Session, user_id: int) -> list[SubscriptionUs
     return (
         db.query(SubscriptionUserCard)
         .join(CreditCard, SubscriptionUserCard.card_id == CreditCard.id)
-        .filter(CreditCard.user_id == user_id)
+        .filter(CreditCard.user_id == user_id,
+                SubscriptionUserCard.subscription_id != None,
+                SubscriptionUserCard.cancelled == False)
         .all()
     )
 
@@ -73,6 +75,7 @@ def create_subscription_by_user(
         .filter(
             CreditCard.user_id == db_card.user_id,
             SubscriptionUserCard.expiry_date >= sub_card_in.init_date,
+            SubscriptionUserCard.cancelled == False,
         )
         .first()
     )
@@ -90,34 +93,42 @@ def create_subscription_by_user(
 
 
 def delete_subscription_by_user(
-    db: Session, subscription_user_card_id: int, user_id: int
+    db: Session,
+    subscription_user_card_id: int,
+    user_id: int
 ) -> SubscriptionUserCard:
-    db_sub_card = db.get(SubscriptionUserCard, subscription_user_card_id)
-    if not db_sub_card:
-        raise HTTPException(status_code=404, detail="SubscriptionUserCard not found.")
 
-    # Verifica che la carta appartenga all'utente
+    db_sub_card = db.get(SubscriptionUserCard, subscription_user_card_id)
+
+    if not db_sub_card:
+        raise HTTPException(status_code=404, detail="Subscription not found.")
+
     db_card = db.get(CreditCard, db_sub_card.card_id)
+
     if not db_card or db_card.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized.")
 
-    db.delete(db_sub_card)
+    # cancellazione logica
+    db_sub_card.automatic_renewal = False
+    db_sub_card.cancelled = True
+
     db.commit()
+    db.refresh(db_sub_card)
+
     return db_sub_card
 
 
-def _get_profit_between(db: Session, start_date: datetime.date, end_date: datetime.date) -> float:
+def _get_profit_between(db: Session,start_date: datetime.date,end_date: datetime.date) -> float:
     total = (
-        db.query(func.sum(Subscription.cost))
-        .join(SubscriptionUserCard, Subscription.id == SubscriptionUserCard.subscription_id)
+        db.query(func.sum(SubscriptionUserCard.paid_amount))
         .filter(
             SubscriptionUserCard.init_date >= start_date,
             SubscriptionUserCard.init_date <= end_date,
         )
         .scalar()
     )
-    return float(total or 0)
 
+    return float(total or 0)
 
 def get_profit_by_week(db: Session) -> float:
     today = datetime.date.today()
