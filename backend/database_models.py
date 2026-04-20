@@ -114,8 +114,7 @@ class Course(Base):
     duration_month = Column(Integer, nullable=False)
     require_subscription = Column(Boolean, default=False)
 
-    purchases = relationship("CourseUserCard", back_populates="course",
-                             cascade="all, delete-orphan")
+    purchases = relationship("CourseUserCard", back_populates="course",)
 
 
 class CourseUserCard(Base):
@@ -128,6 +127,10 @@ class CourseUserCard(Base):
     init_date = Column(Date, nullable=False)
     expiry_date = Column(Date, nullable=False)
     automatic_renewal = Column(Boolean, default=False)
+
+    # dato storico
+    paid_amount = Column(Numeric(10, 2), nullable=False)
+    cancelled = Column(Boolean, default=False, nullable=False)
 
     card = relationship("CreditCard", back_populates="courses")
     course = relationship("Course", back_populates="purchases")

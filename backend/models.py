@@ -341,6 +341,8 @@ class CourseUserCardCreateORM(BaseModel):
     init_date: datetime.date
     expiry_date: datetime.date
     automatic_renewal: bool = False
+    paid_amount: float
+    cancelled: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -361,6 +363,8 @@ class CourseUserCardOutORM(BaseModel):
     init_date: datetime.date
     expiry_date: datetime.date
     automatic_renewal: bool = False
+    paid_amount: float
+    cancelled: bool = False
 
     model_config = {"from_attributes": True}
 
