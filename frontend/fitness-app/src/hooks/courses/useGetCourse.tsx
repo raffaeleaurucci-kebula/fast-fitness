@@ -1,0 +1,49 @@
+import { useState } from "react";
+import type { CourseOut } from "../../types/courses.ts";
+
+const API_BASE = "http://127.0.0.1:8000";
+const TOKEN_KEY = "gym_access_token";
+
+interface UseGetCoursesReturn {
+  loading: boolean;
+  error: string | null;
+  getCourses: (costSup?: number) => Promise<CourseOut[] | null>;
+}
+
+export function useGetCourses(): UseGetCoursesReturn {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getCourses = async (costSup: number = 0): Promise<CourseOut[] | null> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/courses/list?cost_sup=${costSup}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.detail ?? "Errore nel caricamento dei corsi.");
+        return null;
+      }
+
+      return await res.json();
+    } catch {
+      setError("Impossibile contattare il server. Riprova più tardi.");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loading, error, getCourses };
+}

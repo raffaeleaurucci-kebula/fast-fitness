@@ -3,22 +3,22 @@ import { useState } from "react";
 const API_BASE = "http://127.0.0.1:8000";
 const TOKEN_KEY = "gym_access_token";
 
-interface UseDeleteSubByUserReturn {
+interface UseDeleteCourseReturn {
   loading: boolean;
   error: string | null;
-  deleteSubByUser: (subscriptionUserCardId: number) => Promise<boolean>;
+  deleteCourse: (courseId: number) => Promise<boolean>;
 }
 
-export function useDeleteSubByUser(): UseDeleteSubByUserReturn {
+export function useDeleteCourse(): UseDeleteCourseReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteSubByUser = async (subscriptionUserCardId: number): Promise<boolean> => {
+  const deleteCourse = async (courseId: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/subscriptions/user/${subscriptionUserCardId}`, {
+      const res = await fetch(`${API_BASE}/courses/${courseId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export function useDeleteSubByUser(): UseDeleteSubByUserReturn {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.detail ?? "Errore durante la cancellazione dell'abbonamento.");
+        setError(data.detail ?? "Errore durante l'eliminazione del corso.");
 
         if (data.detail.toLowerCase().includes("token")) {
           localStorage.removeItem(TOKEN_KEY);
@@ -47,5 +47,5 @@ export function useDeleteSubByUser(): UseDeleteSubByUserReturn {
     }
   };
 
-  return { loading, error, deleteSubByUser };
+  return { loading, error, deleteCourse };
 }

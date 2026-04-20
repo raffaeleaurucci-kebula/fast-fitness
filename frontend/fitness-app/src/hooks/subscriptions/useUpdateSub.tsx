@@ -35,8 +35,14 @@ export function useUpdateSub(): UseUpdateSubReturn {
       });
 
       if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        setError(json.detail ?? "Errore durante l'aggiornamento dell'abbonamento.");
+        const data = await res.json().catch(() => ({}));
+        setError(data.detail ?? "Errore durante l'aggiornamento dell'abbonamento.");
+
+        if (data.detail.toLowerCase().includes("token")) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = "/login";
+        }
+
         return null;
       }
 
