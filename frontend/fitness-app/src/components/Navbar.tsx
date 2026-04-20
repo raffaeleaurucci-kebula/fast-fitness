@@ -69,12 +69,7 @@ const Navbar = () => {
 
         {/* CENTER - NAV */}
         <div
-          className="d-none d-lg-flex gap-3 align-items-center"
-          style={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
+          className="d-flex gap-3 align-items-center"
         >
           {navItems
             .filter((item) => {
