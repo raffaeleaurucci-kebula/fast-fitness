@@ -30,6 +30,12 @@ export function useGetCards(): UseGetCardsReturn {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setError(data.detail ?? "Errore nel recupero delle carte.");
+
+        if (data.detail.toLowerCase().includes("token")) {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = "/login";
+        }
+
         return null;
       }
 
