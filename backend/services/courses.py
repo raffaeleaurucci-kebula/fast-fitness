@@ -3,8 +3,10 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from database_models import Course, CourseUserCard, CreditCard, User
+from database_models import Course, CourseUserCard, CreditCard, User, SubscriptionUserCard
 from models import CourseCreateORM, CourseUserCardCreateORM
+from routers import subscriptions
+from routers.subscriptions import list_subscriptions_by_user
 
 
 def get_course_or_404(db: Session, course_id: int) -> Course:
@@ -43,7 +45,8 @@ def list_courses_by_user(db: Session, user_id: int) -> list[CourseUserCard]:
     return (
         db.query(CourseUserCard)
         .join(CreditCard, CourseUserCard.card_id == CreditCard.id)
-        .filter(CreditCard.user_id == user_id)
+        .filter(CourseUserCard.course_id != None,
+                CourseUserCard.cancelled == False)
         .all()
     )
 
@@ -54,9 +57,10 @@ def list_courses(db: Session, cost_sup: float) -> list[Course]:
 
 def create_course_by_user(db: Session, course_card_in: CourseUserCardCreateORM) -> CourseUserCard:
     db_card = db.get(CreditCard, course_card_in.card_id)
+    db_course = db.get(Course, course_card_in.course_id)
     if not db_card:
         raise HTTPException(status_code=404, detail="Credit card not found.")
-    if not db.get(Course, course_card_in.course_id):
+    if not db_course:
         raise HTTPException(status_code=404, detail="Course not found.")
 
     # Prevenire doppia iscrizione attiva allo stesso corso per lo stesso utente
@@ -66,8 +70,9 @@ def create_course_by_user(db: Session, course_card_in: CourseUserCardCreateORM) 
         .join(CreditCard, CourseUserCard.card_id == CreditCard.id)
         .filter(
             CreditCard.user_id == db_card.user_id,
-            CourseUserCard.course_id == course_card_in.course_id,
             CourseUserCard.expiry_date >= course_card_in.init_date,
+            CourseUserCard.course_id == course_card_in.course_id,
+            CourseUserCard.cancelled == False,
         )
         .first()
     )
@@ -76,6 +81,18 @@ def create_course_by_user(db: Session, course_card_in: CourseUserCardCreateORM) 
             status_code=409,
             detail="User already has an active enrollment for this course.",
         )
+
+    if db_course.require_subscription:
+        # check if user has an active subscription
+        exist_subscription = (db.query(SubscriptionUserCard)
+        .join(CreditCard, SubscriptionUserCard.card_id == CreditCard.id)
+        .filter(CreditCard.user_id == db_card.user_id,
+                SubscriptionUserCard.subscription_id != None,
+                SubscriptionUserCard.cancelled == False)
+        .all())
+
+        if not exist_subscription:
+            raise HTTPException(status_code=409, detail="Subscription required for this course.")
 
     db_course_card = CourseUserCard(**course_card_in.model_dump())
     db.add(db_course_card)
@@ -93,15 +110,19 @@ def delete_course_by_user(db: Session, course_user_card_id: int, user_id: int) -
     if not db_card or db_card.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized.")
 
-    db.delete(db_course_card)
+    # cancellazione logica
+    db_course_card.automatic_renewal = False
+    db_course_card.cancelled = True
+
     db.commit()
+    db.refresh(db_course_card)
+
     return db_course_card
 
 
 def _get_course_profit_between(db: Session, start_date: datetime.date, end_date: datetime.date) -> float:
     total = (
-        db.query(func.sum(Course.cost))
-        .join(CourseUserCard, Course.id == CourseUserCard.course_id)
+        db.query(func.sum(CourseUserCard.paid_amount))
         .filter(
             CourseUserCard.init_date >= start_date,
             CourseUserCard.init_date <= end_date,

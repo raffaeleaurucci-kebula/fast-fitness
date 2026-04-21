@@ -1,11 +1,12 @@
 import React from "react";
 
 interface FormState {
-  title: string;
+  type: string;
+  description: string;
+  n_accesses: number;
   cost: number;
   duration_month: number;
-  weekly_accesses: number;
-  description: string;
+  require_subscription: boolean;
 }
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
   loading: boolean;
   error: string | null;
   formatError: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSubmit: () => void;
 }
 
@@ -30,20 +31,20 @@ interface FieldConfig {
 
 const fields: FieldConfig[] = [
   {
-    name: "title",
-    label: "Titolo",
+    name: "type",
+    label: "Tipo corso",
     type: "text",
-    placeholder: "es. Piano Premium, Basic, Pro…",
-    hint: "Il nome del piano che vedranno gli utenti.",
-    icon: "🏷️",
+    placeholder: "es. Yoga, Pilates, Spinning…",
+    hint: "Il nome del corso che vedranno gli utenti.",
+    icon: "🏋️",
     colClass: "col-12 col-md-6",
   },
   {
     name: "cost",
-    label: "Costo mensile (€)",
+    label: "Costo (€)",
     type: "number",
-    placeholder: "es. 29.90",
-    hint: "Importo in euro addebitato per durata scelta.",
+    placeholder: "es. 49.90",
+    hint: "Importo in euro per l'iscrizione al corso.",
     icon: "💶",
     colClass: "col-12 col-md-6",
     min: 0,
@@ -52,25 +53,43 @@ const fields: FieldConfig[] = [
     name: "duration_month",
     label: "Durata (mesi)",
     type: "number",
-    placeholder: "es. 1, 3, 6, 12",
-    hint: "Per quanti mesi rimane valido l'abbonamento.",
+    placeholder: "es. 1, 3, 6",
+    hint: "Per quanti mesi è valida l'iscrizione al corso.",
     icon: "📅",
     colClass: "col-12 col-md-6",
     min: 1,
   },
   {
-    name: "weekly_accesses",
-    label: "Accessi settimanali",
+    name: "n_accesses",
+    label: "N° accessi totali",
     type: "number",
-    placeholder: "es. 3 (0 = illimitati)",
-    hint: "Quante volte a settimana l'utente può accedere.",
-    icon: "🔑",
+    placeholder: "es. 12 (0 = illimitati)",
+    hint: "Quante volte l'utente può partecipare al corso.",
+    icon: "🔁",
     colClass: "col-12 col-md-6",
     min: 0,
   },
 ];
 
-export default function AdminCreateForm({
+const inputStyle: React.CSSProperties = {
+  borderRadius: "8px",
+  border: "1.5px solid #dee2e6",
+  padding: "10px 14px",
+  fontSize: "0.92rem",
+  transition: "border-color 0.15s, box-shadow 0.15s",
+};
+
+const focusStyle = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.target.style.borderColor = "#198754";
+  e.target.style.boxShadow = "0 0 0 3px rgba(25,135,84,0.12)";
+};
+
+const blurStyle = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.target.style.borderColor = "#dee2e6";
+  e.target.style.boxShadow = "none";
+};
+
+export default function AdminCreateCourseForm({
   form,
   loading,
   error,
@@ -80,7 +99,7 @@ export default function AdminCreateForm({
 }: Props) {
   return (
     <div
-      className="mt-5"
+      className="mt-5 border border-1"
       style={{
         background: "#fff",
         borderRadius: "16px",
@@ -88,28 +107,27 @@ export default function AdminCreateForm({
         overflow: "hidden",
       }}
     >
-      {/* Header del form */}
+      {/* Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #212529 0%, #343a40 100%)",
+          background: "#146c43",
           padding: "22px 32px",
           display: "flex",
           alignItems: "center",
           gap: "12px",
         }}
       >
-
         <div>
           <h4 className="mb-0 text-white fw-bold" style={{ letterSpacing: "0.2px" }}>
-            Crea nuovo abbonamento
+            Crea nuovo corso
           </h4>
           <p className="mb-0 text-white-50" style={{ fontSize: "0.85rem", marginTop: "2px" }}>
-            Compila i campi per aggiungere un nuovo piano
+            Compila i campi per aggiungere un nuovo corso
           </p>
         </div>
       </div>
 
-      {/* Corpo del form */}
+      {/* Corpo */}
       <div style={{ padding: "28px 32px" }}>
         <div className="row g-4">
           {fields.map((field) => (
@@ -123,27 +141,15 @@ export default function AdminCreateForm({
               </label>
               <input
                 className="form-control"
-                style={{
-                  borderRadius: "8px",
-                  border: "1.5px solid #dee2e6",
-                  padding: "10px 14px",
-                  fontSize: "0.92rem",
-                  transition: "border-color 0.15s, box-shadow 0.15s",
-                }}
+                style={inputStyle}
                 name={field.name}
                 type={field.type}
-                value={form[field.name]}
+                value={form[field.name] as string | number}
                 placeholder={field.placeholder}
                 min={field.min}
                 onChange={onChange}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#0d6efd";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(13,110,253,0.12)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#dee2e6";
-                  e.target.style.boxShadow = "none";
-                }}
+                onFocus={focusStyle}
+                onBlur={blurStyle}
               />
               <small className="text-muted" style={{ fontSize: "0.78rem", marginTop: "4px", display: "block" }}>
                 {field.hint}
@@ -151,44 +157,58 @@ export default function AdminCreateForm({
             </div>
           ))}
 
-          {/* Campo descrizione a larghezza piena */}
+          {/* Descrizione */}
           <div className="col-12">
             <label
               className="form-label fw-semibold mb-1"
               style={{ fontSize: "0.875rem", color: "#212529" }}
             >
               <span className="me-1">📋</span>
-              Servizi inclusi
+              Descrizione
             </label>
             <input
               className="form-control"
-              style={{
-                borderRadius: "8px",
-                border: "1.5px solid #dee2e6",
-                padding: "10px 14px",
-                fontSize: "0.92rem",
-                transition: "border-color 0.15s, box-shadow 0.15s",
-              }}
+              style={inputStyle}
               name="description"
               type="text"
               value={form.description}
-              placeholder="es. Sala pesi, Cardio, Corsi di gruppo, Spogliatoio premium"
+              placeholder="Breve descrizione del corso"
               onChange={onChange}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#0d6efd";
-                e.target.style.boxShadow = "0 0 0 3px rgba(13,110,253,0.12)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#dee2e6";
-                e.target.style.boxShadow = "none";
-              }}
+              onFocus={focusStyle}
+              onBlur={blurStyle}
             />
             <small className="text-muted" style={{ fontSize: "0.78rem", marginTop: "4px", display: "block" }}>
-              Elenca i servizi separati da virgola. Appariranno come punti elenco nella card.
+              Una breve descrizione visibile nella card del corso.
             </small>
             {formatError && (
               <small className="text-danger d-block mt-1">⚠️ {formatError}</small>
             )}
+          </div>
+
+          {/* Checkbox require_subscription */}
+          <div className="col-12">
+            <div
+              className="d-flex align-items-center gap-3 p-3 rounded"
+              style={{ background: "#f8f9fa", border: "1.5px solid #dee2e6" }}
+            >
+              <input
+                type="checkbox"
+                className="form-check-input mt-0"
+                id="require_subscription"
+                name="require_subscription"
+                checked={Boolean(form.require_subscription)}
+                onChange={onChange}
+                style={{ width: "1.2em", height: "1.2em", cursor: "pointer" }}
+              />
+              <label htmlFor="require_subscription" style={{ cursor: "pointer" }}>
+                <span className="fw-semibold" style={{ fontSize: "0.875rem" }}>
+                  Richiede abbonamento attivo in palestra
+                </span>
+                <small className="d-block text-muted" style={{ fontSize: "0.78rem" }}>
+                  Se attivo, solo gli utenti con un abbonamento valido potranno iscriversi.
+                </small>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -196,41 +216,37 @@ export default function AdminCreateForm({
         {(loading || error) && (
           <div
             className="mt-4 p-3 rounded"
-            style={{ background: error ? "#fff3f3" : "#f0f4ff", border: `1px solid ${error ? "#f5c2c7" : "#c6d4f9"}` }}
+            style={{
+              background: error ? "#fff3f3" : "#f0faf4",
+              border: `1px solid ${error ? "#f5c2c7" : "#b2dfdb"}`,
+            }}
           >
             {loading && (
-              <p className="mb-0 text-primary" style={{ fontSize: "0.875rem" }}>
-                ⏳ Creazione in corso...
+              <p className="mb-0 text-success" style={{ fontSize: "0.875rem" }}>
+                Creazione in corso...
               </p>
             )}
             {error && (
               <p className="mb-0 text-danger" style={{ fontSize: "0.875rem" }}>
-                ❌ {error}
+                  {error}
               </p>
             )}
           </div>
         )}
 
-        {/* Pulsante submit */}
+        {/* Submit */}
         <div className="d-grid mt-4">
           <button
-            className="btn btn-dark py-2 fw-semibold"
+            className="btn btn-success py-2 fw-semibold"
             style={{
               borderRadius: "10px",
               fontSize: "0.95rem",
               letterSpacing: "0.3px",
-              transition: "background 0.15s, transform 0.1s",
             }}
             onClick={onSubmit}
             disabled={loading}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = "#343a40")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = "")
-            }
           >
-            {loading ? "Creazione in corso..." : "Aggiungi abbonamento"}
+            {loading ? "Creazione in corso..." : "Aggiungi corso"}
           </button>
         </div>
       </div>

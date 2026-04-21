@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import datetime
 
 from database import engine, SessionLocal
-from database_models import Base, User, Subscription, UserRole
+from database_models import Base, User, Subscription, UserRole, Course
 from routers import (
     users,
     credit_cards,
@@ -121,6 +121,57 @@ def seed_database():
 
             db.add_all(plans)
             db.commit()
+
+            # -------------------------------------------------
+            # COURSES
+            # -------------------------------------------------
+
+            if db.query(Course).count() == 0:
+                courses = [
+                    Course(
+                        type="Functional Training",
+                        description="Allenamento funzionale per migliorare forza e mobilità",
+                        n_accesses=10,
+                        cost=59.99,
+                        duration_month=1,
+                        require_subscription=False,
+                    ),
+                    Course(
+                        type="Hypertrophy Program",
+                        description="Programma per aumento massa muscolare",
+                        n_accesses=12,
+                        cost=79.99,
+                        duration_month=2,
+                        require_subscription=True,
+                    ),
+                    Course(
+                        type="Cross Training",
+                        description="Allenamento ad alta intensità per performance atletiche",
+                        n_accesses=8,
+                        cost=69.99,
+                        duration_month=1,
+                        require_subscription=True,
+                    ),
+                    Course(
+                        type="Yoga & Mobility",
+                        description="Mobilità articolare e benessere mentale",
+                        n_accesses=15,
+                        cost=39.99,
+                        duration_month=3,
+                        require_subscription=False,
+                    ),
+                    Course(
+                        type="Personal Coaching",
+                        description="Percorso personalizzato con trainer dedicato",
+                        n_accesses=5,
+                        cost=149.99,
+                        duration_month=1,
+                        require_subscription=True,
+                    ),
+                ]
+
+                db.add_all(courses)
+                db.commit()
 
     finally:
         db.close()

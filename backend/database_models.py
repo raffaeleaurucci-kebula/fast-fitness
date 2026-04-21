@@ -122,7 +122,7 @@ class CourseUserCard(Base):
 
     id = Column(Integer, primary_key=True)
     card_id = Column(Integer, ForeignKey("credit_cards.id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=False)
 
     init_date = Column(Date, nullable=False)
     expiry_date = Column(Date, nullable=False)

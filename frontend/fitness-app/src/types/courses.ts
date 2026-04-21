@@ -9,6 +9,7 @@ export interface CourseIn {
 
 export interface CourseOut {
     id: number,
+    type: string,
     description: string,
     n_accesses: number,
     cost: number,

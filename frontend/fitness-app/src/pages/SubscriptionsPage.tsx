@@ -11,7 +11,7 @@ import type { SubscriptionIn, SubscriptionOut } from "../types/subscriptions.ts"
 import type { SubscriptionUserCardOut } from "../types/subscription_user_card.ts";
 
 import SubscriptionCard from "../components/SubscriptionCard.tsx";
-import AdminCreateForm from "../components/AdminCreateForm.tsx";
+import AdminCreateSubForm from "../components/AdminCreateSubForm.tsx";
 import Footer from "../components/Footer.tsx";
 
 interface EditForm {
@@ -201,7 +201,7 @@ export default function SubscriptionsPage() {
 
           {/* Form creazione admin */}
           {isAdmin && (
-            <AdminCreateForm
+            <AdminCreateSubForm
               form={form}
               loading={loading}
               error={error}

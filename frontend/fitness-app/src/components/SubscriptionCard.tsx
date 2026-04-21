@@ -58,7 +58,7 @@ export default function SubscriptionCard({
   return (
     <div className="col-md-4 d-flex">
       <div
-        className="card w-100 h-100 d-flex flex-column border-0"
+        className="card w-100 h-100 d-flex flex-column border-1"
         style={{
           minHeight: "320px",
           boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
