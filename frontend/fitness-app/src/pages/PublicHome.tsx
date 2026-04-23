@@ -62,10 +62,10 @@ export function PublicHome() {
       </div>
 
       {/* SEZIONE INFO */}
-      <div className="container text-center my-5">
-        <h2 className="mb-4">Perché scegliere FastFitness?</h2>
+      <div className="container text-center py-5">
+        <h2 className="h3 mb-4">Perché scegliere FastFitness?</h2>
 
-        <div className="row">
+        <div className="row py-3">
           <div className="col-md-4">
             <h4>🏋️‍♂️ Allenamenti</h4>
             <p>Piani personalizzati per ogni utente</p>
@@ -86,7 +86,7 @@ export function PublicHome() {
       {/* SERVIZI */}
       <div className="bg-light py-5">
         <div className="container text-center">
-          <h2 className="mb-5">I nostri servizi</h2>
+          <h2 className="h3 mb-5">I nostri servizi</h2>
 
           <div className="row g-4">
 
@@ -140,7 +140,7 @@ export function PublicHome() {
 
       {/* TESTIMONIANZE */}
       <div className="container text-center my-5">
-        <h2 className="mb-5">Cosa dicono i nostri utenti</h2>
+        <h2 className="h3 mb-5">Cosa dicono i nostri utenti</h2>
 
         <div className="row g-4">
 

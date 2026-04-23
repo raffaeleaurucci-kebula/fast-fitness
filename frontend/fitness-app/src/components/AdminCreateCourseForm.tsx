@@ -110,7 +110,7 @@ export default function AdminCreateCourseForm({
       {/* Header */}
       <div
         style={{
-          background: "#146c43",
+          background: "#198754",
           padding: "22px 32px",
           display: "flex",
           alignItems: "center",

@@ -8,6 +8,7 @@ import { PublicHome } from "./pages/PublicHome.tsx";
 import SubscriptionsPage from "./pages/SubscriptionsPage.tsx";
 import SubscribePage from "./pages/SubscribePage.tsx";
 import CoursesPage from "./pages/CoursesPage.tsx";
+import InsightsPage from "./pages/InsightsPage.tsx";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -40,6 +41,10 @@ function AppRoutes() {
       <Route
         path="/subscribe-course/:courseId"
         element={isAuthenticated ? <SubscribePage /> : <Navigate to="/login" />}
+      />
+
+      <Route
+          path="/insights" element={<InsightsPage/>}
       />
     </Routes>
   );

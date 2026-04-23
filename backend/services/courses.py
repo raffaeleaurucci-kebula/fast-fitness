@@ -120,38 +120,103 @@ def delete_course_by_user(db: Session, course_user_card_id: int, user_id: int) -
     return db_course_card
 
 
-def _get_course_profit_between(db: Session, start_date: datetime.date, end_date: datetime.date) -> float:
-    total = (
-        db.query(func.sum(CourseUserCard.paid_amount))
-        .filter(
-            CourseUserCard.init_date >= start_date,
-            CourseUserCard.init_date <= end_date,
-        )
-        .scalar()
-    )
-    return float(total or 0)
-
-
-def get_course_profit_by_week(db: Session) -> float:
+def get_course_profit_by_week_daily(db: Session):
     today = datetime.date.today()
     start_week = today - datetime.timedelta(days=today.weekday())
     end_week = start_week + datetime.timedelta(days=6)
-    return _get_course_profit_between(db, start_week, end_week)
+
+    results = (
+        db.query(
+            func.date(CourseUserCard.init_date).label("day"),
+            func.sum(CourseUserCard.paid_amount).label("profit"),
+        )
+        .filter(
+            CourseUserCard.init_date >= start_week,
+            CourseUserCard.init_date <= end_week,
+        )
+        .group_by(func.date(CourseUserCard.init_date))
+        .order_by(func.date(CourseUserCard.init_date))
+        .all()
+    )
+
+    data_map = {day: float(profit or 0) for day, profit in results}
+
+    return [
+        {
+            "date": str(start_week + datetime.timedelta(days=i)),
+            "profit": data_map.get(start_week + datetime.timedelta(days=i), 0.0),
+        }
+        for i in range(7)
+    ]
 
 
-def get_course_profit_by_month(db: Session) -> float:
+def get_course_profit_by_month_daily(db: Session):
     today = datetime.date.today()
+
     start_month = today.replace(day=1)
+
     if today.month == 12:
         next_month = today.replace(year=today.year + 1, month=1, day=1)
     else:
         next_month = today.replace(month=today.month + 1, day=1)
+
     end_month = next_month - datetime.timedelta(days=1)
-    return _get_course_profit_between(db, start_month, end_month)
+
+    results = (
+        db.query(
+            func.date(CourseUserCard.init_date).label("day"),
+            func.sum(CourseUserCard.paid_amount).label("profit"),
+        )
+        .filter(
+            CourseUserCard.init_date >= start_month,
+            CourseUserCard.init_date <= end_month,
+        )
+        .group_by(func.date(CourseUserCard.init_date))
+        .order_by(func.date(CourseUserCard.init_date))
+        .all()
+    )
+
+    data_map = {day: float(profit or 0) for day, profit in results}
+
+    full_month = []
+    current = start_month
+
+    while current <= end_month:
+        full_month.append({
+            "date": str(current),
+            "profit": data_map.get(current, 0.0),
+        })
+        current += datetime.timedelta(days=1)
+
+    return full_month
 
 
-def get_course_profit_by_year(db: Session) -> float:
+def get_course_profit_by_year_month(db: Session):
     today = datetime.date.today()
-    start_year = today.replace(month=1, day=1)
-    end_year = today.replace(month=12, day=31)
-    return _get_course_profit_between(db, start_year, end_year)
+
+    start_year = datetime.date(today.year, 1, 1)
+    end_year = datetime.date(today.year, 12, 31)
+
+    results = (
+        db.query(
+            func.to_char(CourseUserCard.init_date, "YYYY-MM").label("month"),
+            func.sum(CourseUserCard.paid_amount).label("profit"),
+        )
+        .filter(
+            CourseUserCard.init_date >= start_year,
+            CourseUserCard.init_date <= end_year,
+        )
+        .group_by("month")
+        .order_by("month")
+        .all()
+    )
+
+    data_map = {month: float(profit or 0) for month, profit in results}
+
+    return [
+        {
+            "month": f"{today.year}-{m:02d}",
+            "profit": data_map.get(f"{today.year}-{m:02d}", 0.0),
+        }
+        for m in range(1, 13)
+    ]

@@ -11,7 +11,8 @@ from models import (
 )
 from routers.auth import get_current_user
 from services import courses as course_service
-from services.courses import get_course_profit_by_week, get_course_profit_by_month, get_course_profit_by_year
+from services.courses import (get_course_profit_by_week_daily,
+                              get_course_profit_by_month_daily, get_course_profit_by_year_month)
 
 router = APIRouter(
     prefix="/courses",
@@ -63,7 +64,7 @@ def profit_week(
 ):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
-    return {"profit_week": get_course_profit_by_week(db)}
+    return {"profit_week": get_course_profit_by_week_daily(db)}
 
 
 @router.get("/profit/month")
@@ -73,7 +74,7 @@ def profit_month(
 ):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
-    return {"profit_month": get_course_profit_by_month(db)}
+    return {"profit_month": get_course_profit_by_month_daily(db)}
 
 
 @router.get("/profit/year")
@@ -83,7 +84,7 @@ def profit_year(
 ):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
-    return {"profit_year": get_course_profit_by_year(db)}
+    return {"profit_year": get_course_profit_by_year_month(db)}
 
 
 # -------------------------------------------------------------------------

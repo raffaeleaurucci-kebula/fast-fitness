@@ -171,15 +171,12 @@ export default function CoursesPage() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <main className="flex-grow-1">
-        <div className="container py-5">
+        <div className="container py-4">
 
-          {/* Titolo sezione */}
-          <div className="text-center mb-5">
-            <h2 className="fw-bold mb-1" style={{ fontSize: "2rem", letterSpacing: "-0.5px" }}>
-              Corsi Palestra
-            </h2>
-            <p className="text-muted mb-0">Scegli il corso più adatto a te</p>
-          </div>
+
+            <h1 className="h3 mb-1">Corsi Palestra</h1>
+            <p className="text-muted mb-4">Scegli il corso più adatto a te</p>
+          
 
           {loadingCourses && (
             <p className="text-center text-muted">Caricamento corsi...</p>
