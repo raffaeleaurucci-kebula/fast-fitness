@@ -1,25 +1,25 @@
 import { useState } from "react";
-import type { ProfitMonthOut } from '../../types/profit.ts';
+import type { ProfitWeekOut } from '../../types/profit.ts';
 
 const API_BASE = "http://127.0.0.1:8000";
 const TOKEN_KEY = "gym_access_token";
 
-interface ProfitMonthReturn {
+interface ProfitWeekReturn {
   loading: boolean;
   error: string | null;
-  getProfitMonth: () => Promise<ProfitMonthOut | null>;
+  getCourseProfitWeek: () => Promise<ProfitWeekOut | null>;
 }
 
-export function useGetProfitByMonth(): ProfitMonthReturn {
+export function useGetCourseProfitByWeek(): ProfitWeekReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfitMonth = async (): Promise<ProfitMonthOut | null> => {
+  const getCourseProfitWeek = async (): Promise<ProfitWeekOut | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/courses/profit/month`, {
+      const res = await fetch(`${API_BASE}/courses/profit/week`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,5 +48,5 @@ export function useGetProfitByMonth(): ProfitMonthReturn {
     }
   };
 
-  return { loading, error, getProfitMonth };
+  return { loading, error, getCourseProfitWeek: getCourseProfitWeek };
 }

@@ -7,19 +7,19 @@ const TOKEN_KEY = "gym_access_token";
 interface ProfitYearReturn {
   loading: boolean;
   error: string | null;
-  getProfitYear: () => Promise<ProfitYearOut | null>;
+  getSubProfitYear: () => Promise<ProfitYearOut | null>;
 }
 
-export function useGetProfitByYear(): ProfitYearReturn {
+export function useGetSubProfitByYear(): ProfitYearReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfitYear = async (): Promise<ProfitYearOut | null> => {
+  const getSubProfitYear = async (): Promise<ProfitYearOut | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/courses/profit/year`, {
+      const res = await fetch(`${API_BASE}/subscriptions/profit/year`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,5 +48,5 @@ export function useGetProfitByYear(): ProfitYearReturn {
     }
   };
 
-  return { loading, error, getProfitYear };
+  return { loading, error, getSubProfitYear: getSubProfitYear };
 }
