@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import datetime
 
 from database import engine, SessionLocal
-from database_models import Base, User, Subscription, UserRole, Course
+from database_models import Base, User, Subscription, UserRole, Course, Exercise
 from routers import (
     users,
     credit_cards,
@@ -122,56 +122,183 @@ def seed_database():
             db.add_all(plans)
             db.commit()
 
-            # -------------------------------------------------
-            # COURSES
-            # -------------------------------------------------
+        # -------------------------------------------------
+        # COURSES
+        # -------------------------------------------------
 
-            if db.query(Course).count() == 0:
-                courses = [
-                    Course(
-                        type="Functional Training",
-                        description="Allenamento funzionale per migliorare forza e mobilità",
-                        n_accesses=10,
-                        cost=59.99,
-                        duration_month=1,
-                        require_subscription=False,
-                    ),
-                    Course(
-                        type="Hypertrophy Program",
-                        description="Programma per aumento massa muscolare",
-                        n_accesses=12,
-                        cost=79.99,
-                        duration_month=2,
-                        require_subscription=True,
-                    ),
-                    Course(
-                        type="Cross Training",
-                        description="Allenamento ad alta intensità per performance atletiche",
-                        n_accesses=8,
-                        cost=69.99,
-                        duration_month=1,
-                        require_subscription=True,
-                    ),
-                    Course(
-                        type="Yoga & Mobility",
-                        description="Mobilità articolare e benessere mentale",
-                        n_accesses=15,
-                        cost=39.99,
-                        duration_month=3,
-                        require_subscription=False,
-                    ),
-                    Course(
-                        type="Personal Coaching",
-                        description="Percorso personalizzato con trainer dedicato",
-                        n_accesses=5,
-                        cost=149.99,
-                        duration_month=1,
-                        require_subscription=True,
-                    ),
-                ]
+        if db.query(Course).count() == 0:
+            courses = [
+                Course(
+                    type="Functional Training",
+                    description="Allenamento funzionale per migliorare forza e mobilità",
+                    n_accesses=10,
+                    cost=59.99,
+                    duration_month=1,
+                    require_subscription=False,
+                ),
+                Course(
+                    type="Hypertrophy Program",
+                    description="Programma per aumento massa muscolare",
+                    n_accesses=12,
+                    cost=79.99,
+                    duration_month=2,
+                    require_subscription=True,
+                ),
+                Course(
+                    type="Cross Training",
+                    description="Allenamento ad alta intensità per performance atletiche",
+                    n_accesses=8,
+                    cost=69.99,
+                    duration_month=1,
+                    require_subscription=True,
+                ),
+                Course(
+                    type="Yoga & Mobility",
+                    description="Mobilità articolare e benessere mentale",
+                    n_accesses=15,
+                    cost=39.99,
+                    duration_month=3,
+                    require_subscription=False,
+                ),
+                Course(
+                    type="Personal Coaching",
+                    description="Percorso personalizzato con trainer dedicato",
+                    n_accesses=5,
+                    cost=149.99,
+                    duration_month=1,
+                    require_subscription=True,
+                ),
+            ]
 
-                db.add_all(courses)
-                db.commit()
+            db.add_all(courses)
+            db.commit()
+
+        # -------------------------------------------------
+        # EXERCISES
+        # -------------------------------------------------
+
+        if db.query(Exercise).count() == 0:
+            exercises = [
+                # PETTO
+                Exercise(
+                    name="Panca Piana Bilanciere",
+                    muscle_group="Petto",
+                    description="Esercizio base multiarticolare per lo sviluppo del petto."
+                ),
+                Exercise(
+                    name="Panca Inclinata Manubri",
+                    muscle_group="Petto",
+                    description="Focus sulla parte alta del petto."
+                ),
+                Exercise(
+                    name="Croci ai Cavi",
+                    muscle_group="Petto",
+                    description="Ottimo esercizio di isolamento per il petto."
+                ),
+
+                # SCHIENA
+                Exercise(
+                    name="Lat Machine Presa Larga",
+                    muscle_group="Schiena",
+                    description="Sviluppa dorsali e ampiezza della schiena."
+                ),
+                Exercise(
+                    name="Rematore Bilanciere",
+                    muscle_group="Schiena",
+                    description="Esercizio completo per spessore dorsale."
+                ),
+                Exercise(
+                    name="Pulley Basso",
+                    muscle_group="Schiena",
+                    description="Lavoro controllato su dorsali e romboidi."
+                ),
+
+                # GAMBE
+                Exercise(
+                    name="Squat Bilanciere",
+                    muscle_group="Gambe",
+                    description="Fondamentale per quadricipiti e glutei."
+                ),
+                Exercise(
+                    name="Leg Press",
+                    muscle_group="Gambe",
+                    description="Ottimo per forza e massa delle gambe."
+                ),
+                Exercise(
+                    name="Leg Extension",
+                    muscle_group="Gambe",
+                    description="Isolamento dei quadricipiti."
+                ),
+                Exercise(
+                    name="Leg Curl",
+                    muscle_group="Gambe",
+                    description="Isolamento femorali."
+                ),
+                Exercise(
+                    name="Calf Raise",
+                    muscle_group="Polpacci",
+                    description="Sviluppo dei polpacci."
+                ),
+
+                # SPALLE
+                Exercise(
+                    name="Military Press",
+                    muscle_group="Spalle",
+                    description="Esercizio base per deltoidi e tricipiti."
+                ),
+                Exercise(
+                    name="Alzate Laterali",
+                    muscle_group="Spalle",
+                    description="Isolamento del deltoide laterale."
+                ),
+                Exercise(
+                    name="Alzate Posteriori",
+                    muscle_group="Spalle",
+                    description="Focus deltoide posteriore."
+                ),
+
+                # BRACCIA
+                Exercise(
+                    name="Curl Bilanciere",
+                    muscle_group="Bicipiti",
+                    description="Esercizio classico per i bicipiti."
+                ),
+                Exercise(
+                    name="Curl Manubri Alternato",
+                    muscle_group="Bicipiti",
+                    description="Lavoro mono-laterale controllato."
+                ),
+                Exercise(
+                    name="Push Down Cavo",
+                    muscle_group="Tricipiti",
+                    description="Ottimo isolamento tricipiti."
+                ),
+                Exercise(
+                    name="French Press",
+                    muscle_group="Tricipiti",
+                    description="Focus sul capo lungo del tricipite."
+                ),
+
+                # ADDOME
+                Exercise(
+                    name="Crunch a Terra",
+                    muscle_group="Addome",
+                    description="Base per addominali."
+                ),
+                Exercise(
+                    name="Plank",
+                    muscle_group="Addome",
+                    description="Stabilità del core."
+                ),
+                Exercise(
+                    name="Leg Raise",
+                    muscle_group="Addome",
+                    description="Focus addome basso."
+                ),
+            ]
+
+            db.add_all(exercises)
+            db.commit()
 
     finally:
         db.close()
