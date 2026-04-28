@@ -215,17 +215,17 @@ const Navbar = () => {
                     👤 Profilo
                   </Link>
 
+                  <Link
+                    to="/training-cards"
+                    className="dropdown-item py-2 px-3"
+                    style={{ textAlign: "left" }}
+                  >
+                    📝 Schede Allenamento
+                  </Link>
+
                   {/* USER */}
                   {user?.role === "USER" && (
                     <>
-                      <Link
-                        to="/training-cards"
-                        className="dropdown-item py-2 px-3"
-                        style={{ textAlign: "left" }}
-                      >
-                        📝 Schede Allenamento
-                      </Link>
-
                       <Link
                         to="/reservations"
                         className="dropdown-item py-2 px-3"

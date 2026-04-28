@@ -9,6 +9,7 @@ import SubscriptionsPage from "./pages/SubscriptionsPage.tsx";
 import SubscribePage from "./pages/SubscribePage.tsx";
 import CoursesPage from "./pages/CoursesPage.tsx";
 import InsightsPage from "./pages/InsightsPage.tsx";
+import TrainingCards from "./pages/TrainingCards.tsx";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -45,6 +46,11 @@ function AppRoutes() {
 
       <Route
           path="/insights" element={<InsightsPage/>}
+      />
+
+      <Route
+        path="/training-cards"
+        element={isAuthenticated ? <TrainingCards /> : <Navigate to="/login" />}
       />
     </Routes>
   );
